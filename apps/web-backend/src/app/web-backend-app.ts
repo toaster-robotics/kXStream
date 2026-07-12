@@ -8,6 +8,7 @@ import axios from 'axios';
 import epgParser from 'epg-parser';
 import parser from 'iptv-playlist-parser';
 import { normalizeXtreamServerUrl } from '@iptvnator/shared/interfaces';
+import { handleKodiCast } from './kodi-cast';
 
 export interface WebBackendHttpGetOptions {
     readonly headers?: Record<string, string>;
@@ -89,9 +90,19 @@ export function createWebBackendApp(
         optionsSuccessStatus: 200,
     });
 
-    app.get('/', (_req, res) => res.send('IPTVnator web backend'));
     app.get('/health', (_req, res) =>
-        res.json({ status: 'ok', service: 'iptvnator-web-backend' })
+        res.json({ status: 'ok', service: 'kxstream-web-backend' })
+    );
+
+    // Forward a stream URL to a Kodi machine (JSON-RPC Player.Open). The target
+    // (host/port/credentials) is supplied per-request by the client from its
+    // configured Kodi machines; this endpoint is a stateless forwarder.
+    app.options('/cast', corsMiddleware);
+    app.post(
+        '/cast',
+        corsMiddleware,
+        express.json({ limit: '16kb' }),
+        (req, res) => handleKodiCast(req, res)
     );
 
     app.get('/config.js', corsMiddleware, (_req, res) => {

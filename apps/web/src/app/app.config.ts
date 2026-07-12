@@ -33,8 +33,8 @@ import { dbConfig } from '@iptvnator/shared/interfaces';
 import { AppConfig } from '../environments/environment';
 import { routes } from './app.routes';
 import { ElectronService } from './services/electron.service';
-import { ExternalPlaybackService } from './services/external-playback.service';
-import { PlayerService } from './services/player.service';
+import { KodiCastPlayerService } from './services/kodi/kodi-cast-player.service';
+import { NoopExternalPlaybackService } from './services/kodi/noop-external-playback.service';
 import {
     AppPortalNavigationActionsService,
     providePortalNavigationActions,
@@ -139,11 +139,11 @@ export const appConfig: ApplicationConfig = {
         },
         {
             provide: PORTAL_PLAYER,
-            useExisting: PlayerService,
+            useExisting: KodiCastPlayerService,
         },
         {
             provide: PORTAL_EXTERNAL_PLAYBACK,
-            useExisting: ExternalPlaybackService,
+            useExisting: NoopExternalPlaybackService,
         },
         ...providePortalPlaybackPositions(),
         ...providePortalNavigationActions(),

@@ -1,9 +1,9 @@
 {
-    "name": "iptvnator",
+    "name": "kxstream",
     "version": "0.22.0",
     "license": "MIT",
-    "description": "IPTV player application.",
-    "homepage": "https://github.com/4gray/iptvnator",
+    "description": "kXStream - PWA Xtream browser that casts to Kodi.",
+    "homepage": "https://github.com/toaster-robotics/kXStream",
     "author": {
         "name": "4gray",
         "email": "fourgray@proton.me"

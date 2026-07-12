@@ -4,20 +4,80 @@
          audit, leaving them visible implied switching playlists changes
          which settings you're editing. -->
     @if (!isSettingsRoute()) {
-        <app-playlist-switcher
-            class="playlist-switcher"
-            [currentTitle]="playlistTitle()"
-            [subtitle]="playlistSubtitle()"
-            [showPlaylistInfo]="canOpenPlaylistInfo()"
-            [showAccountInfo]="canOpenAccountInfo()"
-            [showAddPlaylist]="true"
-            [canRefreshActivePlaylist]="canRefreshPlaylist()"
-            [isRefreshingActivePlaylist]="isRefreshingPlaylist()"
-            (playlistInfoRequested)="onPlaylistInfoRequested()"
-            (accountInfoRequested)="onAccountInfoRequested()"
-            (addPlaylistRequested)="onAddPlaylistRequested()"
-            (refreshPlaylistRequested)="onRefreshPlaylistRequested()"
-        />
+        <!-- Kodi cast-target selector: the machine chosen here receives every
+             stream you play. -->
+        @if (kodiTargets.hasTargets()) {
+            <button
+                type="button"
+                class="kodi-cast kodi-cast--armed"
+                [matMenuTriggerFor]="kodiMenu"
+                #kodiTrigger="matMenuTrigger"
+                [class.is-open]="kodiTrigger.menuOpen"
+                aria-label="Cast target"
+            >
+                <span class="kodi-cast__glyph">
+                    <mat-icon>cast</mat-icon>
+                    <span class="kodi-cast__signal" aria-hidden="true"></span>
+                </span>
+                <span class="kodi-cast__name">{{
+                    kodiTargets.selectedTarget()?.name
+                }}</span>
+                <mat-icon class="kodi-cast__chev">expand_more</mat-icon>
+            </button>
+
+            <mat-menu
+                #kodiMenu="matMenu"
+                class="kodi-cast-menu"
+                xPosition="after"
+            >
+                <p class="kodi-cast-menu__label">Cast to</p>
+                @for (target of kodiTargets.targets(); track target.id) {
+                    <button
+                        mat-menu-item
+                        type="button"
+                        class="kodi-cast-menu__item"
+                        [class.is-active]="
+                            kodiTargets.selectedTarget()?.id === target.id
+                        "
+                        (click)="kodiTargets.select(target.id)"
+                    >
+                        <mat-icon class="kodi-cast-menu__icon">cast</mat-icon>
+                        <span class="kodi-cast-menu__text">
+                            <span class="kodi-cast-menu__name">{{
+                                target.name
+                            }}</span>
+                            <span class="kodi-cast-menu__host"
+                                >{{ target.host }}:{{ target.port }}</span
+                            >
+                        </span>
+                        @if (kodiTargets.selectedTarget()?.id === target.id) {
+                            <mat-icon class="kodi-cast-menu__check"
+                                >check</mat-icon
+                            >
+                        }
+                    </button>
+                }
+                <div class="kodi-cast-menu__divider"></div>
+                <button
+                    mat-menu-item
+                    type="button"
+                    class="kodi-cast-menu__manage"
+                    (click)="openKodiSetup()"
+                >
+                    <mat-icon>tune</mat-icon>
+                    <span>Manage machines</span>
+                </button>
+            </mat-menu>
+        } @else {
+            <button
+                type="button"
+                class="kodi-cast kodi-cast--empty"
+                (click)="openKodiSetup()"
+            >
+                <mat-icon>cast</mat-icon>
+                <span class="kodi-cast__name">Set up Kodi</span>
+            </button>
+        }
     }
 
     @if (!hasNoPlaylists()) {

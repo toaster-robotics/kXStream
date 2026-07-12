@@ -75,6 +75,7 @@ import {
     SETTINGS_STARTUP_BEHAVIOR_OPTIONS,
     SETTINGS_THEME_OPTIONS,
 } from './settings-options';
+import { SettingsKodiSectionComponent } from './settings-kodi-section.component';
 import { SettingsPlaybackSectionComponent } from './settings-playback-section.component';
 import { SettingsRemoteControlSectionComponent } from './settings-remote-control-section.component';
 import { SettingsResetSectionComponent } from './settings-reset-section.component';
@@ -111,6 +112,7 @@ const APP_UPDATE_STATUS_LOAD_RETRY_DELAY_MS = 250;
         SettingsDashboardSectionComponent,
         SettingsEpgSectionComponent,
         SettingsGeneralSectionComponent,
+        SettingsKodiSectionComponent,
         SettingsPlaybackSectionComponent,
         SettingsRemoteControlSectionComponent,
         SettingsResetSectionComponent,

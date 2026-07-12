@@ -117,6 +117,12 @@ export function buildSettingsSectionNavItems({
             visible: true,
         },
         {
+            id: 'kodi',
+            label: 'Kodi',
+            icon: 'cast',
+            visible: true,
+        },
+        {
             id: 'playback',
             label: 'SETTINGS.NAV_PLAYBACK',
             icon: 'play_circle',

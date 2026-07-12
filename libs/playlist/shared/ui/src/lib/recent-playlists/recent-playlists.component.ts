@@ -39,6 +39,7 @@ import {
     RuntimeCapabilitiesService,
     SortBy,
     SortService,
+    XtreamCatalogCacheService,
     XtreamPendingRestoreService,
 } from '@iptvnator/services';
 import {
@@ -83,6 +84,7 @@ export class RecentPlaylistsComponent {
     private readonly router = inject(Router);
     private readonly snackBar = inject(MatSnackBar);
     private readonly sortService = inject(SortService);
+    private readonly catalogCache = inject(XtreamCatalogCacheService);
     private readonly store = inject(Store);
     private readonly runtime = inject(RuntimeCapabilitiesService);
     private readonly translate = inject(TranslateService);
@@ -302,6 +304,12 @@ export class RecentPlaylistsComponent {
         if (item.serverUrl && this.supportsXtreamSqliteDataSource) {
             // For Xtream playlists, delete and re-import
             this.refreshXtreamPlaylist(item);
+        } else if (item.serverUrl) {
+            // PWA: clear the persisted IndexedDB catalog for this source, then
+            // reload so the store re-fetches the latest categories/streams.
+            void this.catalogCache
+                .clearPlaylist(item._id)
+                .finally(() => globalThis.location?.reload());
         } else if (
             this.supportsPlaylistRefresh &&
             (item.url || item.filePath)

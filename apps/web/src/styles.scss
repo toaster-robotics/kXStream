@@ -234,3 +234,114 @@ textarea,
     white-space: nowrap;
     border: 0;
 }
+
+// ─── Kodi cast-target menu (header selector) ─────────────────────────────────
+// The menu renders in a CDK overlay, so it must be styled at the global level.
+// Overlay content sits outside the app's theme scope, so --mat-sys-* tokens do
+// NOT resolve here. Build from the menu's own component tokens (which do) plus
+// currentColor + an accent fallback, so it stays themed in light and dark.
+.kodi-cast-menu.mat-mdc-menu-panel {
+    --kx-cast-accent: var(--mat-sys-primary, #3d7dff);
+    min-width: 248px;
+    border-radius: 14px;
+    padding: 6px;
+    background: var(--mat-menu-container-color);
+    color: var(--mat-menu-item-label-text-color);
+    border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+    box-shadow:
+        0 20px 44px -22px rgba(0, 0, 0, 0.5),
+        0 2px 10px -6px rgba(0, 0, 0, 0.3);
+
+    .mat-mdc-menu-content {
+        padding: 0;
+    }
+
+    .kodi-cast-menu__label {
+        margin: 4px 10px 6px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        opacity: 0.5;
+    }
+
+    .kodi-cast-menu__item.mat-mdc-menu-item {
+        min-height: 46px;
+        border-radius: 10px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .kodi-cast-menu__icon {
+            flex-shrink: 0;
+            opacity: 0.55;
+        }
+
+        .kodi-cast-menu__text {
+            display: flex;
+            flex: 1;
+            min-width: 0;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .kodi-cast-menu__name {
+            overflow: hidden;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .kodi-cast-menu__host {
+            font-size: 0.72rem;
+            opacity: 0.55;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .kodi-cast-menu__check {
+            flex-shrink: 0;
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            color: var(--kx-cast-accent);
+        }
+
+        &.is-active {
+            background: color-mix(
+                in srgb,
+                var(--kx-cast-accent) 13%,
+                transparent
+            );
+
+            .kodi-cast-menu__icon {
+                opacity: 1;
+                color: var(--kx-cast-accent);
+            }
+        }
+    }
+
+    .kodi-cast-menu__divider {
+        height: 1px;
+        margin: 6px 8px;
+        background: color-mix(in srgb, currentColor 12%, transparent);
+    }
+
+    .kodi-cast-menu__manage.mat-mdc-menu-item {
+        min-height: 40px;
+        border-radius: 10px;
+        padding: 0 10px;
+        gap: 10px;
+        opacity: 0.72;
+        font-size: 0.8125rem;
+        font-weight: 500;
+
+        mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            color: inherit;
+        }
+    }
+}

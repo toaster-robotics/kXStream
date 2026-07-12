@@ -2,15 +2,18 @@ import {
     ChangeDetectionStrategy,
     Component,
     ElementRef,
+    inject,
     input,
     output,
     viewChild,
 } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
+import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { PlaylistSwitcherComponent } from '@iptvnator/playlist/shared/ui';
+import { KodiTargetsService } from '@iptvnator/services';
 import { WorkspaceHeaderAction } from '@iptvnator/portal/shared/util';
 import { WorkspaceHeaderBulkAction } from '../../services/helpers/workspace-shell-constants';
 
@@ -19,8 +22,8 @@ import { WorkspaceHeaderBulkAction } from '../../services/helpers/workspace-shel
     imports: [
         MatIcon,
         MatIconButton,
+        MatMenuModule,
         MatTooltip,
-        PlaylistSwitcherComponent,
         TranslatePipe,
     ],
     templateUrl: './workspace-shell-header.component.html',
@@ -30,6 +33,12 @@ import { WorkspaceHeaderBulkAction } from '../../services/helpers/workspace-shel
 export class WorkspaceShellHeaderComponent {
     private readonly searchInput =
         viewChild<ElementRef<HTMLInputElement>>('searchInput');
+    private readonly router = inject(Router);
+    readonly kodiTargets = inject(KodiTargetsService);
+
+    openKodiSetup(): void {
+        void this.router.navigate(['/workspace/settings']);
+    }
 
     readonly isMac =
         typeof navigator !== 'undefined' &&

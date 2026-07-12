@@ -42,6 +42,8 @@
                 (selectCoverSize)="selectCoverSize($event)"
             />
 
+            <app-settings-kodi-section [activeSection]="activeSection()" />
+
             <app-settings-playback-section
                 [form]="settingsForm"
                 [activeSection]="activeSection()"

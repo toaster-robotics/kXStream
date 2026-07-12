@@ -15,7 +15,10 @@ import {
     XtreamApiService,
     XtreamCredentials,
 } from '../services/xtream-api.service';
-import { PlaylistsService } from '@iptvnator/services';
+import {
+    PlaylistsService,
+    XtreamCatalogCacheService,
+} from '@iptvnator/services';
 import { firstValueFrom } from 'rxjs';
 import {
     DbCategoryType,
@@ -80,6 +83,7 @@ type StoredXtreamPlaylistData = Omit<XtreamPlaylistData, 'password'> & {
 export class PwaXtreamDataSource implements IXtreamDataSource {
     private readonly apiService = inject(XtreamApiService);
     private readonly injector = inject(Injector);
+    private readonly catalogCache = inject(XtreamCatalogCacheService);
     private readonly logger = createLogger('PwaXtreamDataSource');
     private readonly contentTypes = ['live', 'movie', 'series'] as const;
 
@@ -138,8 +142,9 @@ export class PwaXtreamDataSource implements IXtreamDataSource {
         this.clearRecentItemsForPlaylist(playlistId);
         this.clearPlaybackPositionsForPlaylist(playlistId);
 
-        // Clear cache
+        // Clear in-memory + persisted catalog caches
         this.clearCacheForPlaylist(playlistId);
+        void this.catalogCache.clearPlaylist(playlistId);
     }
 
     private getPlaylistsFromStorage(): XtreamPlaylistData[] {
@@ -305,14 +310,23 @@ export class PwaXtreamDataSource implements IXtreamDataSource {
             return cachedCategories;
         }
 
+        // Then the persisted IndexedDB catalog (survives reloads/relaunches)
+        const persisted =
+            await this.catalogCache.get<XtreamCategory[]>(cacheKey);
+        if (persisted) {
+            this.categoryCache.set(cacheKey, persisted);
+            return persisted;
+        }
+
         // Fetch from API
         const categories = await this.apiService.getCategories(
             credentials,
             type
         );
 
-        // Cache in memory
+        // Cache in memory + persist
         this.categoryCache.set(cacheKey, categories);
+        void this.catalogCache.set(playlistId, cacheKey, categories);
 
         return categories;
     }
@@ -393,6 +407,23 @@ export class PwaXtreamDataSource implements IXtreamDataSource {
                 | XtreamSerieItem[];
         }
 
+        // Then the persisted IndexedDB catalog (already normalized on save)
+        const persisted =
+            await this.catalogCache.get<XtreamCachedContentItem[]>(cacheKey);
+        if (persisted) {
+            this.contentCache.set(cacheKey, persisted);
+            if (onTotal) {
+                onTotal(persisted.length);
+            }
+            if (onProgress) {
+                onProgress(persisted.length);
+            }
+            return persisted as unknown as
+                | XtreamLiveStream[]
+                | XtreamVodStream[]
+                | XtreamSerieItem[];
+        }
+
         // Fetch from API
         const content = this.normalizeContentItems(
             await this.apiService.getStreams(credentials, type),
@@ -407,8 +438,9 @@ export class PwaXtreamDataSource implements IXtreamDataSource {
             onProgress(content.length);
         }
 
-        // Cache in memory
+        // Cache in memory + persist
         this.contentCache.set(cacheKey, content);
+        void this.catalogCache.set(playlistId, cacheKey, content);
 
         return content;
     }
